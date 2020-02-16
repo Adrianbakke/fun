@@ -1,12 +1,11 @@
 import numpy as np
 
+up,down,left,right=[ord(x) for x in ['U','D','L','R']]
+
 def swap(ix1,ix2,xs):
     xs = list(xs)
-    x1 = xs[ix1]
-    x2 = xs[ix2]
-    xs[ix1] = x2
-    xs[ix2] = x1
-    print(str(xs))
+    x1,x2 = xs[ix1],xs[ix2]
+    xs[ix1],xs[ix2] = x2,x1
     return str(xs)
 
 def getindw(sx):
@@ -21,38 +20,36 @@ def calcCheckSum(sx):
     for s in sx: a += checksum(a, s)
     return a
 
+def move(cond, dim, indw, v, direct, moves):
+    if cond:
+        check = calcCheckSum(swap(indw,indw+dim,v))
+        moves.append([check, ])
+    return moves
+
 def possibleMoves(v):
     dim = int(np.sqrt(len(v)))
     indw = getindw(v)
     wcoord = (indw//dim, indw%dim)
     moves = []
-    if wcoord[0] < (dim-1):
-        check = calcCheckSum(swap(indw,indw+dim,v))
-        moves.append([check, 'U'])
-    if wcoord[0] > 0:
-        check = calcCheckSum(swap(indw,indw-dim,v))
-        moves.append([check, 'D'])
-    if wcoord[1] < (dim-1):
-        check = calcCheckSum(swap(indw,indw+1,v))
-        moves.append([check, 'L'])
-    if wcoord[1] > 0:
-        check = calcCheckSum(swap(indw,indw-1,v))
-        moves.append([check, 'R'])
+    moves = move(wcoord[0] < (dim-1), dim, indw, v, up, moves) #up
+    moves = move(wcoord[0] > 0, dim, indw, v, down, moves) #down
+    moves = move(wcoord[1] < (dim-1), dim, indw, v, left, moves) #left
+    moves = move(wcoord[1] > 0, dim, indw, v, right, moves) #right
     return moves
 
 def bfg(start_v, goal):
     Q = possibleMoves(start_v)
     discovered = set()
     while Q:
-        v = Q.pop(0)
         if (v[0] == goal):
             return v
-        adjEdges = possibleMoves(v[0])
-        for o in adjEdges:
-            if not o[0] in discovered:
-                discovered.add(o[0])
-                path = v[1] + o[1]
-                Q.append([o[0], path])
+        for v in vert:
+            adjEdges = possibleMoves(v[0])
+            for o in adjEdges:
+                if not o[0] in discovered:
+                    discovered.add(o[0])
+                    path = v[1] + o[1]
+                    Q.append([o[0], path])
 
 #dim = int(input(""))
 #a = []
@@ -67,4 +64,5 @@ def bfg(start_v, goal):
 a = "aaaaaaaabwbbbbbb"
 b = "bbbbbwbbaaaaaaaa"
 
+goal = calcCheckSum(b)
 bfg(a,b)
