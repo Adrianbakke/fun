@@ -9,19 +9,15 @@ def swap(ix1,ix2,xs):
 def getindw(sx):
     return sx.find('w')
 
-def checksum(checksum, c):
-    return ((checksum*243)+c) % 100000007
+def checksum(cs, c):
+    return ((cs*243)+c) % 100000007
 
 def calcCheckSum(sx):
     sx = list(sx)
     a = 0
-    for s in sx: a += checksum(a, ord(s))
+    for s in sx:
+        a = checksum(a, ord(s))
     return a 
-
-def move(cond, swap, indw, v, direct, moves):
-    if cond:
-        moves.append([swap(indw,indw+swap,v), direct])
-    return moves
 
 def possibleMoves(v):
     dim = int(np.sqrt(len(v)))
@@ -49,7 +45,7 @@ def bfg(start_v, goal):
         disc = []
         for v in Q:
             if v[0] == goal:
-                results.append(v)
+                results.append(v[1])
                 continue
             newmoves = possibleMoves(v[0])
             for nm in newmoves:
@@ -60,24 +56,15 @@ def bfg(start_v, goal):
         for d in disc: discovered.add(d)
         if results: return results
 
-#dim = int(input(""))
-#a = []
-#b = []
-#for x in range(dim):
-#    a.append(list(input("")))
-#for x in range(dim):
-#    b.append(list(input("")))
-#
-#print(bfg(a,b))
+dim = int(input(""))
+a = []
+b = []
+for x in range(dim):
+    a.append(input(""))
+for x in range(dim):
+    b.append(input(""))
 
-a = "aaaaaaaabwbbbbbb"
-b = "bbbbbwbbaaaaaaaa"
-
-#   a = "bbbbwrrrr"
-#b = "rbrbwbrbr"
-
-#a = "awbb"
-#b= "abwb"
-
-#goal = calcCheckSum(b)
-print(bfg(a,b))
+a = ''.join(a)
+b = ''.join(b)
+res = bfg(a.lower(),b.lower())
+print(sum([calcCheckSum(r) for r in res])%100000007)
