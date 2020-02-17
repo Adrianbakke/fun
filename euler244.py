@@ -1,7 +1,5 @@
 import numpy as np
 
-up,down,left,right=[ord(x) for x in ['U','D','L','R']]
-
 def swap(ix1,ix2,xs):
     xs = list(xs)
     x1,x2 = xs[ix1],xs[ix2]
@@ -12,17 +10,16 @@ def getindw(sx):
     return sx.find('w')
 
 def checksum(checksum, c):
-    return (checksum*243+c) % 100000007
+    return ((checksum*243)+c) % 100000007
 
 def calcCheckSum(sx):
     sx = list(sx)
     a = 0
-    for s in sx: a += checksum(a, s)
-    return a
+    for s in sx: a += checksum(a, ord(s))
+    return a 
 
 def move(cond, swap, indw, v, direct, moves):
     if cond:
-        # check = calcCheckSum(swap(indw,indw+dim,v))
         moves.append([swap(indw,indw+swap,v), direct])
     return moves
 
@@ -49,6 +46,7 @@ def bfg(start_v, goal):
     while Q:
         Q = q
         q = []
+        disc = []
         for v in Q:
             if v[0] == goal:
                 results.append(v)
@@ -56,9 +54,10 @@ def bfg(start_v, goal):
             newmoves = possibleMoves(v[0])
             for nm in newmoves:
                 if not nm[0] in discovered:
-                    discovered.add(nm[0])
+                    disc.append(nm[0])
                     path = v[1] + nm[1]
                     q.append([nm[0], path])
+        for d in disc: discovered.add(d)
         if results: return results
 
 #dim = int(input(""))
@@ -73,6 +72,9 @@ def bfg(start_v, goal):
 
 a = "aaaaaaaabwbbbbbb"
 b = "bbbbbwbbaaaaaaaa"
+
+#   a = "bbbbwrrrr"
+#b = "rbrbwbrbr"
 
 #a = "awbb"
 #b= "abwb"
