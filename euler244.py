@@ -1,4 +1,4 @@
-import numpy as np
+import math
 
 def swap(ix1,ix2,xs):
     xs = list(xs)
@@ -15,12 +15,11 @@ def checksum(cs, c):
 def calcCheckSum(sx):
     sx = list(sx)
     a = 0
-    for s in sx:
-        a = checksum(a, ord(s))
+    for s in sx: a = checksum(a, ord(s))
     return a 
 
 def possibleMoves(v):
-    dim = int(np.sqrt(len(v)))
+    dim = int(math.sqrt(len(v)))
     indw = getindw(v)
     wcoord = (indw//dim, indw%dim)
     moves = []
@@ -35,26 +34,23 @@ def possibleMoves(v):
     return moves
 
 def bfg(start_v, goal):
-    Q = possibleMoves(start_v)
-    q = Q
+    tmpQ = possibleMoves(start_v)
     results = []
     discovered = set()
-    while Q:
-        Q = q
-        q = []
-        disc = []
-        for v in Q:
-            if v[0] == goal:
-                results.append(v[1])
+    while not results:
+        Q,tmpQ,disc = tmpQ,[],[]
+        for q in Q:
+            if q[0] == goal:
+                results.append(q[1])
                 continue
-            newmoves = possibleMoves(v[0])
+            newmoves = possibleMoves(q[0])
             for nm in newmoves:
                 if not nm[0] in discovered:
                     disc.append(nm[0])
-                    path = v[1] + nm[1]
-                    q.append([nm[0], path])
+                    path = q[1] + nm[1]
+                    tmpQ.append([nm[0], path])
         for d in disc: discovered.add(d)
-        if results: return results
+    return results
 
 dim = int(input(""))
 a = []
@@ -66,5 +62,13 @@ for x in range(dim):
 
 a = ''.join(a)
 b = ''.join(b)
+
+#a = 'aaaaaaaabwbbbbbb'
+#b = 'bbbbbwbbaaaaaaaa'
+#a = "bbbbwrrrr"
+#b = "rbrbwbrbr"
+
 res = bfg(a.lower(),b.lower())
+print(res)
 print(sum([calcCheckSum(r) for r in res])%100000007)
+
