@@ -55,16 +55,16 @@ class NN:
       a1 = self._sigmoid(w1 @ self.X.T)
       a2 = self._sigmoid(a1 @ w2.T) # this is really a2.T :: 4x1
       w1,w2 = self._backwards(w1, w2, a1, a2)
-      if c%1000 == 0:
-         print(self._calc_loss(a2))
+      if c%1000 == 0: print(self._calc_loss(a2))
     print(a2)
     
   def _backwards(self, w1, w2, a1, a2, n=1):
-    d2 = (self._deriv_loss(a2) * self._deriv_sigmoid(a2)).T @ a1
-    d1 = (((self._deriv_loss(a2) * self._deriv_sigmoid(a2)) @ w2) * self._deriv_sigmoid(a1)) @ self.X
-    neww2 = w2 - n * d2
-    neww1 = w1 - n * d1
-    return neww1,neww2
+    l = self._deriv_loss(a2) * self._deriv_sigmoid(a2)
+    d2 = l.T @ a1 #dE/dw2
+    d1 = ((l @ w2) * self._deriv_sigmoid(a1)) @ self.X #dE/dw1
+    uw2 = w2 - n * d2
+    uw1 = w1 - n * d1
+    return uw1,uw2
 
   def _calc_loss(self, o):
     return np.mean(np.sqrt((self.y-o)**2))
