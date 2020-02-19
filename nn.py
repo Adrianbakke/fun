@@ -40,12 +40,11 @@ class NN:
     return (univec/sum(univec))-(1/n)
 
   def forward(self):
-    #X::4x2 w1::4x2 w2::1x4 a1::4x4 a2::1x4
-    w1 = np.array([self._weight_row(self.X.shape[1]) for _ in range(self.X.shape[0])])     
-    w2 = self._weight_row(self.X.shape[0]).reshape((1,4))
+    w1 = np.array([self._weight_row(self.X.shape[0]) for _ in range(self.X.shape[1])])    
+    w2 = self._weight_row(self.X.shape[0]).reshape((self.X.shape[0],1))
     for c in range(10000):
-      a1 = self._sigmoid(w1 @ self.X.T)
-      a2 = self._sigmoid(a1 @ w2.T) # this is really a2.T :: 4x1
+      a1 = self._sigmoid(self.X @ w1)
+      a2 = self._sigmoid(a1 @ w2)
       w1,w2 = self._backwards(w1, w2, a1, a2)
       if c%1000 == 0: print(self._calc_loss(a2))
     print(a2)
@@ -54,17 +53,17 @@ class NN:
     # TODO: get a deeper understanding of backprop 
     # awesome resource: https://mattmazur.com/2015/03/17/a-step-by-step-backpropagation-example/
     l = self._deriv_loss(a2) * self._deriv_sigmoid(a2)
-    d2 = l.T @ a1 #dE/dw2
-    d1 = ((l @ w2) * self._deriv_sigmoid(a1)) @ self.X #dE/dw1
+    d2 = a1 @ l #dE/dw2
+    d1 = self.X.T @ ((l @ w2.T) * self._deriv_sigmoid(a1)) #dE/dw1
     uw2 = w2 - n * d2
     uw1 = w1 - n * d1
     return uw1,uw2
 
   def _calc_loss(self, o):
-    return np.mean(np.sqrt((self.y-o)**2))
+    return np.mean(np.sqrt((o-self.y)**2))
 
-  def _deriv_loss(self, x):
-    return 2*(x-self.y)
+  def _deriv_loss(self, o):
+    return 2*(o-self.y)
 
 a = NN(X,y)
 a.forward()
