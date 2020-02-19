@@ -59,9 +59,9 @@ class NN:
          print(self._calc_loss(a2))
     print(a2)
     
-  def _backwards(self, w1, w2, a1, a2, n=1e-1):
-    d2 = (a1.T @ (self._deriv_loss(a2) * self._deriv_sigmoid(a2))).T
-    d1 = ((self._deriv_loss(a2) * self._deriv_sigmoid(a2)) @ w2) @ self.X
+  def _backwards(self, w1, w2, a1, a2, n=1):
+    d2 = (self._deriv_loss(a2) * self._deriv_sigmoid(a2)).T @ a1
+    d1 = (((self._deriv_loss(a2) * self._deriv_sigmoid(a2)) @ w2) * self._deriv_sigmoid(a1)) @ self.X
     neww2 = w2 - n * d2
     neww1 = w1 - n * d1
     return neww1,neww2
