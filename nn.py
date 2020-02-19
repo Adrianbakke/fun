@@ -28,14 +28,6 @@ class NN:
     self.X = X
     self.y = y
 
-  def _relu(self, x, deriv=False):
-    if not isinstance(x,np.ndarray): x = np.array(x)
-    if deriv:
-      x[x<=0] = 0
-      x[x>0] = 1
-    else: x[x<=0] = 0
-    return x
-
   def _sigmoid(self, x):
     if not isinstance(x,np.ndarray): x = np.array(x)
     return 1/(1+np.exp(-x))
@@ -59,6 +51,8 @@ class NN:
     print(a2)
     
   def _backwards(self, w1, w2, a1, a2, n=1):
+    # TODO: get a deeper understanding of backprop 
+    # awesome resource: https://mattmazur.com/2015/03/17/a-step-by-step-backpropagation-example/
     l = self._deriv_loss(a2) * self._deriv_sigmoid(a2)
     d2 = l.T @ a1 #dE/dw2
     d1 = ((l @ w2) * self._deriv_sigmoid(a1)) @ self.X #dE/dw1
