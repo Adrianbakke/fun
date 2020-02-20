@@ -47,8 +47,9 @@ class NN:
       a2 = self._sigmoid(a1 @ w2)
       w1,w2,d1,d2 = self._backwards(w1, w2, a1, a2)
       if c%1000 == 0:
-          print(self._calc_loss(a2))
-          print(self._backwards_nv(w1, w2, a1, a2), d2)
+          #print(self._calc_loss(a2))
+          print(self._backwards_nv(w1, w2, a1, a2))
+          print(d2)
     print(a2)
     
   def _backwards(self, w1, w2, a1, a2, n=1):
@@ -62,22 +63,21 @@ class NN:
     return uw1,uw2,d1,d2
 
   def _backwards_nv(self, w1, w2, a1, a2, n=1):
-      # backprop nonvector way
-      dw2 = np.zeros(w2.shape)
-      print(dw2.shape)
+    # backprop nonvector way
+    dw2 = np.zeros((w2.shape[0],w2.shape[0]))
+    for x in range(w2.shape[0]):
       for c,o in enumerate(a2):
-          deda = self._deriv_loss(o)
-          dadz = self._deriv_sigmoid(o)
-          print(a1)
-          for c1,o1 in enumerate(a1[c]):
-              dw2[c,c1] = deda*dadz*o1
-      print(dw2)
-          
+        deda = self._deriv_loss(o[0], c=c)
+        dadz = self._deriv_sigmoid(o[0])
+        dzdw = a1[x,c]
+        dw2[c,x] = deda*dadz*dzdw
+    return np.sum(dw2, axis=0)  
 
   def _calc_loss(self, o):
     return np.mean(np.sqrt((o-self.y)**2))
 
-  def _deriv_loss(self, o):
+  def _deriv_loss(self, o, c=None):
+    if not c is None: return 2*(o-self.y[c][0])
     return 2*(o-self.y)
 
 a = NN(X,y)
