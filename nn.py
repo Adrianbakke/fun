@@ -41,7 +41,7 @@ class NN:
 
   def forward(self):
     w1 = np.array([self._weight_row(self.X.shape[0]) for _ in range(self.X.shape[1])])    
-    w2 = self._weight_row(self.X.shape[0]).reshape((self.X.shape[0],1))
+    w2 = self._weight_row(self.y.shape[0]).reshape((self.y.shape[0],1))
     for c in range(10000):
       a1 = self._sigmoid(self.X @ w1)
       a2 = self._sigmoid(a1 @ w2)
