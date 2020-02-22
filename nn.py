@@ -45,33 +45,21 @@ class NN:
     for c in range(10000):
       a1 = self._sigmoid(self.X @ w1)
       a2 = self._sigmoid(a1 @ w2)
-      w1,w2,d1,d2 = self._backwards(w1, w2, a1, a2)
+      w1,w2 = self._backwards(w1, w2, a1, a2)
       if c%1000 == 0:
-          #print(self._calc_loss(a2))
-          print(self._backwards_nv(w1, w2, a1, a2))
-          print(d2)
+        print(self._calc_loss(a2))
+    print(w1,w2)
     print(a2)
     
   def _backwards(self, w1, w2, a1, a2, n=1):
     # TODO: get a deeper understanding of backprop 
     # awesome resource: https://mattmazur.com/2015/03/17/a-step-by-step-backpropagation-example/
     l = self._deriv_loss(a2) * self._deriv_sigmoid(a2)
-    d2 = a1 @ l #dE/dw2
+    d2 = a1.T @ l #dE/dw2
     d1 = self.X.T @ ((l @ w2.T) * self._deriv_sigmoid(a1)) #dE/dw1
     uw2 = w2 - n * d2
     uw1 = w1 - n * d1
-    return uw1,uw2,d1,d2
-
-  def _backwards_nv(self, w1, w2, a1, a2, n=1):
-    # backprop nonvector way
-    dw2 = np.zeros((w2.shape[0],w2.shape[0]))
-    for x in range(w2.shape[0]):
-      for c,o in enumerate(a2):
-        deda = self._deriv_loss(o[0], c=c)
-        dadz = self._deriv_sigmoid(o[0])
-        dzdw = a1[x,c]
-        dw2[c,x] = deda*dadz*dzdw
-    return np.sum(dw2, axis=0)  
+    return uw1,uw2
 
   def _calc_loss(self, o):
     return np.mean(np.sqrt((o-self.y)**2))
@@ -80,5 +68,53 @@ class NN:
     if not c is None: return 2*(o-self.y[c][0])
     return 2*(o-self.y)
 
-a = NN(X,y)
-a.forward()
+class NN2:
+  def __init__(self, X, y):
+    self.X = X
+    self.y = y
+  
+  def _forward(self, x, ws):
+    a = []
+    for w in ws:
+      x = self._sigmoid(w @ x)
+      a.append(x)
+    return a 
+
+  def backpropagation(self):
+    w1 = np.random.random((2,2))
+    w2 = np.random.random(2)
+    w1 = w1/w1.sum(axis=1)
+    w2 = w2/w2.sum()
+    ws = [w1,w2]
+    for _ in range(10000):
+      dedw2 = np.zeros(w2.shape)
+      dedw1 = np.zeros(w1.shape)
+      for sample_num,x in enumerate(self.X):
+        a = self._forward(x.reshape(2,1),ws)
+        d = self._deriv_loss(a[-1][0], self.y[sample_num][0]) * self._deriv_sigmoid(a[-1][0])
+        for i in range(len(ws[-1])): 
+          dedw2[i] += d * a[-2][i][0]
+          for n in range(len(ws[-2])):
+            dedw1[i][n] += d * self._deriv_sigmoid(a[-2][i][0]) * x[n]
+      ws[-1] = ws[-1] - dedw2
+      ws[-2] = ws[-2] - dedw1
+    print(ws)
+    print(self._sigmoid(ws[-1]@(self._sigmoid(ws[-2]@self.X.T))))
+
+  def _sigmoid(self, x):
+    return 1/(1+np.exp(-x))
+
+  def _deriv_sigmoid(self, x):
+    return x*(1-x)
+
+  def _loss(self, o):
+    return np.mean(np.sqrt((o-self.y)**2))
+
+  def _deriv_loss(self, o, y):
+    return 2*(o-y)
+  
+a = NN2(X,y)
+#a.forward()
+a.backpropagation()
+
+
