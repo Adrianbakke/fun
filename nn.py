@@ -14,6 +14,8 @@ import numpy as np
 import torch
 import matplotlib.pyplot as plt
 
+np.random.seed(1337)
+
 X = np.array([
   [0,0],
   [0,1],
@@ -87,7 +89,7 @@ class NN2:
       dedw1 = np.zeros(w1.shape)
       for sample_num,x in enumerate(self.X):
         a = self._forward(x.reshape(2,1),ws)
-        delta = self._deriv_loss(a[-1][0], self.y[sample_num][0]) * self._deriv_sigmoid(a[-1][0])
+        delta = self._deriv_loss(a[-1][0], sample_num) * self._deriv_sigmoid(a[-1][0])
         for i in range(len(ws[-1])): 
           dedw2[i] += delta * a[-2][i][0]
           delta2 = delta * ws[-1][i] * self._deriv_sigmoid(a[-2][i][0])
@@ -95,8 +97,9 @@ class NN2:
             dedw1[i][n] +=  delta2 * x[n]
       ws[-1] = ws[-1] - dedw2
       ws[-2] = ws[-2] - dedw1
-      if c%1000==0: print("loss: ",self._loss(np.array([self._sigmoid(ws[-1]@(self._sigmoid(ws[-2]@self.X.T)))]).T))
-    print("predictions:", self._sigmoid(ws[-1]@(self._sigmoid(ws[-2]@self.X.T))))
+      preds = self._sigmoid(ws[-1]@(self._sigmoid(ws[-2]@self.X.T)))
+      if c%1000==0: print("loss: ",self._loss(np.array([preds]).T))
+    print("predictions:", preds)
 
   def _sigmoid(self, x):
     return 1/(1+np.exp(-x))
@@ -107,8 +110,8 @@ class NN2:
   def _loss(self, o):
     return np.mean(np.sqrt((o-self.y)**2))
 
-  def _deriv_loss(self, o, y):
-    return 2*(o-y)
+  def _deriv_loss(self, o, c):
+    return 2*(o-self.y[c][0])
   
 print("linalg way")
 a = NN(X,y)
