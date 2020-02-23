@@ -48,7 +48,6 @@ class NN:
       w1,w2 = self._backwards(w1, w2, a1, a2)
       if c%1000 == 0:
         print(self._calc_loss(a2))
-    print(w1,w2)
     print(a2)
     
   def _backwards(self, w1, w2, a1, a2, n=1):
@@ -83,19 +82,18 @@ class NN2:
   def backpropagation(self):
     w1 = np.random.random((2,2))
     w2 = np.random.random(2)
-    w1 = w1/np.array(w1.sum(axis=1)).T
-    w2 = w2/w2.sum()
     ws = [w1,w2]
     for _ in range(10000):
       dedw2 = np.zeros(w2.shape)
       dedw1 = np.zeros(w1.shape)
       for sample_num,x in enumerate(self.X):
         a = self._forward(x.reshape(2,1),ws)
-        d = self._deriv_loss(a[-1][0], self.y[sample_num][0]) * self._deriv_sigmoid(a[-1][0])
+        delta = self._deriv_loss(a[-1][0], self.y[sample_num][0]) * self._deriv_sigmoid(a[-1][0])
         for i in range(len(ws[-1])): 
-          dedw2[i] += d * a[-2][i][0]
+          dedw2[i] += delta * a[-2][i][0]
+          delta2 = delta * ws[-1][i] * self._deriv_sigmoid(a[-2][i][0])
           for n in range(len(ws[-2])):
-            dedw1[i][n] += d * ws[-1][i] * self._deriv_sigmoid(a[-2][i][0]) * x[n]
+            dedw1[i][n] +=  delta2 * x[n]
       ws[-1] = ws[-1] - dedw2
       ws[-2] = ws[-2] - dedw1
     print(ws)
@@ -113,8 +111,9 @@ class NN2:
   def _deriv_loss(self, o, y):
     return 2*(o-y)
   
+print("linalg way")
+a = NN(X,y)
+a.forward()
+print("loopy way")
 a = NN2(X,y)
-#a.forward()
 a.backpropagation()
-
-
