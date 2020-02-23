@@ -46,9 +46,8 @@ class NN:
       a1 = self._sigmoid(self.X @ w1)
       a2 = self._sigmoid(a1 @ w2)
       w1,w2 = self._backwards(w1, w2, a1, a2)
-      if c%1000 == 0:
-        print(self._calc_loss(a2))
-    print(a2)
+      if c%1000 == 0: print("loss: ", self._calc_loss(a2))
+    print("predictions: ", a2.T[0])
     
   def _backwards(self, w1, w2, a1, a2, n=1):
     # TODO: get a deeper understanding of backprop 
@@ -83,7 +82,7 @@ class NN2:
     w1 = np.random.random((2,2))
     w2 = np.random.random(2)
     ws = [w1,w2]
-    for _ in range(10000):
+    for c in range(10000):
       dedw2 = np.zeros(w2.shape)
       dedw1 = np.zeros(w1.shape)
       for sample_num,x in enumerate(self.X):
@@ -96,8 +95,8 @@ class NN2:
             dedw1[i][n] +=  delta2 * x[n]
       ws[-1] = ws[-1] - dedw2
       ws[-2] = ws[-2] - dedw1
-    print(ws)
-    print(self._sigmoid(ws[-1]@(self._sigmoid(ws[-2]@self.X.T))))
+      if c%1000==0: print("loss: ",self._loss(np.array([self._sigmoid(ws[-1]@(self._sigmoid(ws[-2]@self.X.T)))]).T))
+    print("predictions:", self._sigmoid(ws[-1]@(self._sigmoid(ws[-2]@self.X.T))))
 
   def _sigmoid(self, x):
     return 1/(1+np.exp(-x))
@@ -114,6 +113,7 @@ class NN2:
 print("linalg way")
 a = NN(X,y)
 a.forward()
+print()
 print("loopy way")
 a = NN2(X,y)
 a.backpropagation()
