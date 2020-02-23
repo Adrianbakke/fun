@@ -83,7 +83,7 @@ class NN2:
   def backpropagation(self):
     w1 = np.random.random((2,2))
     w2 = np.random.random(2)
-    w1 = w1/w1.sum(axis=1)
+    w1 = w1/np.array(w1.sum(axis=1)).T
     w2 = w2/w2.sum()
     ws = [w1,w2]
     for _ in range(10000):
@@ -95,7 +95,7 @@ class NN2:
         for i in range(len(ws[-1])): 
           dedw2[i] += d * a[-2][i][0]
           for n in range(len(ws[-2])):
-            dedw1[i][n] += d * self._deriv_sigmoid(a[-2][i][0]) * x[n]
+            dedw1[i][n] += d * ws[-1][i] * self._deriv_sigmoid(a[-2][i][0]) * x[n]
       ws[-1] = ws[-1] - dedw2
       ws[-2] = ws[-2] - dedw1
     print(ws)
